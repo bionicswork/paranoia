@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gluttiness Head · PARANOIA</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070a08;--g:#7fff9e;--a:#ffb347;--b:#5dd3ff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--g);font-family:'JetBrains Mono',monospace;display:flex;flex-direction:column;align-items:center}
+canvas{max-width:100%;height:auto!important;box-shadow:0 0 28px #7fff9e33;outline:none}
+nav{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:12px;font-size:13px}
+nav a{color:var(--a);text-decoration:none;border:1px solid var(--a);padding:6px 12px;border-radius:6px}
+nav a:hover{background:#ffb34722}
+small{color:var(--b);padding:0 12px 12px;text-align:center}
+</style>
+</head>
+<body>
+<div id="c"></div>
+<nav><a href="https://paranoiabook.com" target="_blank" rel="noopener">🌐 Aprende más · paranoiabook.com</a><a href="https://bionics.work" target="_blank" rel="noopener">🦾 Únete al movimiento biónico · bionics.work</a></nav>
+<small>Flechas/WASD mover · ESPACIO respirar (Lenguaje Noético) · E alopurinol · C daltonismo · V voz ChronOS</small>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<script>
+/* ===== GLUTTINESS HEAD · mini-demo PARANOIA · bionics.work × paranoiabook.com ===== */
+
+// Arquetipos del Triángulo del Ego (spd=velocidad, egoM=ritmo de ego, alu=cargas de alopurinol)
+const ARQ=[
+ {n:'América',r:'CEO · ego capitalista',p:'Ego ×1.6 · alopurinol ×1',spd:2.6,egoM:1.6,alu:1,col:'#ffb347'},
+ {n:'Gaby',r:'Hacker · ego intelectual',p:'Ve el umbral de fructosa',spd:2.8,egoM:1,alu:1,col:'#5dd3ff',pre:1},
+ {n:'Dan',r:'Enólogo ruso · ego territorial',p:'Veloz · daño biodiv. ×1.3',spd:3.1,egoM:1.2,alu:1,col:'#ff5d5d',bioM:1.3},
+ {n:'Kalyna',r:'Artista ucraniana · ego emocional',p:'Alopurinol ×2 · ego ×1.4',spd:2.7,egoM:1.4,alu:2,col:'#d58bff'}];
+
+// Muertes = lecciones (las citas son las frases del diseño; sustituir por citas literales del libro)
+const LES={
+ hep:{t:'COLAPSO HEPÁTICO',l:'Fructosa al 100 %. La RVA avisó: el exceso no cura el ego, lo cobra con el hígado.',q:'“La glotonería no es la solución de los problemas personales y se prohibió debido al ecocidio.”'},
+ ina:{t:'INANICIÓN',l:'Ración incumplida. Evitar el exceso no es evitar la ración: la RVA dicta qué, cuánto y cuándo.',q:'“El planeta no te necesita, tú necesitas al planeta.”'},
+ eco:{t:'COLAPSO ECOSISTÉMICO',l:'O₂, biodiversidad o agua bajo el umbral. Cada baya dulce tuvo un precio biológico inmediato.',q:'“El planeta no te necesita, tú necesitas al planeta.”'},
+ ego:{t:'EGO DESBORDADO',l:'El Triángulo del Ego se cerró. Intentaste callarlo con comida; el Lenguaje Noético (ESPACIO) lo hacía gratis.',q:'“La glotonería no es la solución de los problemas personales y se prohibió debido al ecocidio.”'}};
+
+let S='menu',sel=0,deaths=0,cb=false,vox=true,P,H,t=0,fr=[],sp=[],mu=[],W={},E={},msg='',who='CHRONOS',msgT=0,lastS=0,fil=0,flashT=0,crow=null,N={d:0,r:0,o:0},spT=0,K,calm=false;
+const pal=()=>cb?{g:'#56b4e9',a:'#e69f00',b:'#f0e442',r:'#d55e00'}:{g:'#7fff9e',a:'#ffb347',b:'#5dd3ff',r:'#ff5d5d'};
+const glow=(c,b)=>{drawingContext.shadowColor=c;drawingContext.shadowBlur=b};
+
+function setup(){
+  const c=createCanvas(800,500);c.parent('c');
+  c.elt.setAttribute('tabindex','0');
+  c.elt.setAttribute('aria-label','Gluttiness Head, juego de supervivencia ecológica. Flechas o WASD para moverte, espacio para respirar, E para alopurinol.');
+  textFont('"JetBrains Mono", monospace');
+  for(let i=0;i<45;i++)sp.push({x:random(800),y:random(500),v:random(6,18),r:random(1,2.6)}); // esporas
+  for(let i=0;i<9;i++)mu.push({x:random(40,760),y:random(100,470),r:random(8,18)});          // hongos
+}
+
+// ChronOS (voz sintética femenina fría) + subtítulos siempre visibles
+function say(x,force,w){
+  if(!force&&millis()-lastS<4500)return;
+  lastS=millis();msg=x;who=w||'CHRONOS';msgT=millis()+6000;
+  if(vox&&window.speechSynthesis){try{
+    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(x);u.lang='es-ES';u.pitch=1.15;u.rate=.92;
+    const v=speechSynthesis.getVoices().find(v=>/^es/i.test(v.lang)&&/female|mujer|paulina|monica|helena|laura|elena|sabina|google espa/i.test(v.name));
+    if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
+}
+const warn=(k,c,x)=>{if(c&&!W[k]){W[k]=1;say(x,1)}};
+
+function start(){
+  const a=ARQ[sel];
+  P={x:400,y:290,s:a.spd,a,fat:0};
+  H={O2:100,CO2:12,bio:100,agua:100,ego:20,pob:100,fru:0,hun:100,alu:a.alu,hu:0};
+  t=0;fr=[];W={};fil=0;flashT=0;crow=null;N={d:0,r:0,o:0};spT=0;S='play';
+  say('Despiertas en Infra. Soy Epigmenia. Tu RVA lee veintidós biomarcadores. Come solo cuando la ración lo pida. Si el ego aprieta, respira en silencio: tecla espacio.',1,'EPIGMENIA');
+}
+
+function draw(){
+  const dt=min(deltaTime/1000,.05);K=pal();
+  background(7,10,8);world(dt);
+  if(S==='menu')menu();
+  else{ if(S==='play')step(dt); scene(); hud(); sub(); if(S==='end')endScr(); }
+}
+
+// Fondo: grid sutil, hongos luminiscentes, esporas
+function world(dt){
+  stroke(127,255,158,14);strokeWeight(1);
+  for(let x=0;x<800;x+=40)line(x,0,x,500);for(let y=0;y<500;y+=40)line(0,y,800,y);
+  noStroke();
+  mu.forEach(m=>{glow(K.g,22);fill(127,255,158,40+30*sin(frameCount*.03+m.x));circle(m.x,m.y,m.r*2);});
+  glow('#000',0);
+  sp.forEach(s=>{s.y-=s.v*dt;s.x+=sin(frameCount*.02+s.y*.02)*.3;if(s.y<0){s.y=500;s.x=random(800)}fill(127,255,158,70);circle(s.x,s.y,s.r)});
+}
+
+// Lógica de juego (FASE 1 despertar 0-14s · FASE 2 prueba · FASE 3 convergencia 150-180s)
+function step(dt){
+  t+=dt;P.fat=max(0,P.fat-dt);flashT=max(0,flashT-dt);
+  let ax=(keyIsDown(RIGHT_ARROW)||keyIsDown(68))-(keyIsDown(LEFT_ARROW)||keyIsDown(65));
+  let ay=(keyIsDown(DOWN_ARROW)||keyIsDown(83))-(keyIsDown(UP_ARROW)||keyIsDown(87));
+  if(mouseIsPressed&&!ax&&!ay){const dx=mouseX-P.x,dy=mouseY-P.y,d=Math.hypot(dx,dy);if(d>8){ax=dx/d;ay=dy/d}}
+  calm=keyIsDown(32);
+  const v=P.s*60*(H.fru>70?.55:1)*(P.fat>0?.4:1);
+  if(calm)H.ego-=5*dt;                                    // Lenguaje Noético: calma sin comer
+  else if(ax||ay){const m=Math.hypot(ax,ay);P.x=constrain(P.x+ax/m*v*dt,20,780);P.y=constrain(P.y+ay/m*v*dt,90,480)}
+  // Metabolismo y ecosistema
+  H.hun-=1.5*dt;H.ego=max(0,H.ego+.9*P.a.egoM*dt);H.fru=max(0,H.fru-1.1*dt);
+  H.CO2=max(5,H.CO2-.25*dt);H.O2=min(100,H.O2+.3*dt);H.bio=min(100,H.bio+.15*dt);H.agua=min(100,H.agua+.1*dt);
+  // Frutas: dulce 'd' (tentación) / raíz armónica 'r'
+  spT-=dt;if(spT<=0){spT=t>150?.9:1.3;fr.push({x:random(40,760),y:random(100,470),k:random()<(t>150?.65:.5)?'d':'r',l:9})}
+  for(let i=fr.length-1;i>=0;i--){const f=fr[i];f.l-=dt;if(f.l<=0)fr.splice(i,1);else if(dist(f.x,f.y,P.x,P.y)<22){eat(f);fr.splice(i,1)}}
+  // Cuervo del Nodo: aparece cuando el ecosistema se degrada
+  if(H.bio<40&&!crow){crow={x:-20,y:140};say('Cuervo del Nodo detectado. Biodiversidad por debajo del cuarenta por ciento.',1)}
+  if(crow){crow.x+=(P.x-crow.x)*.4*dt;crow.y+=(P.y-60-crow.y)*.4*dt}
+  // Filtreza: umbrales críticos de Huella
+  const TH=[-12,-28,-45];
+  if(fil<3&&H.hu<=TH[fil]){fil++;flashT=2.5;P.fat=4;H.pob-=8;say('Filtreza '+fil+' activada. Contención sistémica aplicada.',1)}
+  // Narración de ChronOS
+  if(t>14&&!W.p){W.p=1;say('Fase de prueba iniciada. Registro decisiones. Sin juicios morales. Solo datos.',1)}
+  warn('f',H.fru>70,'Fructosa crítica. Fatiga proyectada: cuatro horas. Alopurinol disponible con la tecla E.');
+  warn('e',H.ego>80,'Ego al ochenta por ciento. Respira: espacio.');
+  warn('h',H.hun<25,'Ración baja. Ventana de ingesta abierta.');
+  warn('o',H.O2<55,'Oxígeno descendente. Probabilidad de éxito ecosistémico en caída.');
+  if(t>150&&!W.c){W.c=1;say('Convergencia. Biodiversidad '+round(H.bio)+' por ciento, oxígeno '+round(H.O2)+'. Probabilidad de éxito ecosistémico: '+round((H.O2+H.bio+H.agua)/3)+' por ciento.',1)}
+  // Muertes
+  if(H.fru>=100)return die('hep');
+  if(H.hun<=0)return die('ina');
+  if(H.O2<35||H.bio<20||H.agua<15)return die('eco');
+  if(H.ego>=100)return die('ego');
+  if(t>=180){
+    if(deaths===0){deaths++;finish({t:'MUERTE DIFERIDA',l:'Sobreviviste 180 s, pero ChronOS proyecta colapso a este ritmo. Sobrevivir no es sostener un ecosistema: aprende y vuelve.',q:'“El planeta no te necesita, tú necesitas al planeta.”',def:1},'Muerte diferida. Probabilidad de éxito ecosistémico insuficiente.')}
+    else finish({t:'SUPERVIVENCIA ARMÓNICA',l:'Comiste en ventana, respiraste en silencio y el ecosistema resistió. Eso es Terrasapiens.',q:'“El planeta no te necesita, tú necesitas al planeta.”',win:1},'Convergencia exitosa. Probabilidad de éxito ecosistémico: '+round((H.O2+H.bio+H.agua)/3)+' por ciento.')}
+}
+
+// Feedback ecológico inmediato por cada acción
+function eat(f){
+  const d=f.k==='d',out=H.hun>70;
+  H.hun=min(100,H.hun+(d?30:22));
+  H.fru+=d?10+(out?8:0):2+(out?4:0);                     // fuera de ventana: fructosa +18 %
+  if(d){H.CO2+=6;H.O2-=4;H.bio-=6*(P.a.bioM||1);H.agua-=3;H.pob-=1.5;H.ego-=12;H.hu-=4;N.d++}
+  else{H.CO2+=.5;H.bio-=.5;H.agua-=.3;H.ego-=5;H.hu+=2;N.r++}
+  if(out){N.o++;say('Alarma RVA. Ingesta fuera de ventana. Fructosa más dieciocho por ciento.',1)}
+}
+function die(k){deaths++;finish({...LES[k]},'Biomarcador crítico. '+LES[k].t.toLowerCase()+'. Fin del registro.')}
+function finish(e,line){E=e;S='end';say(line,1)}
+
+function scene(){
+  fr.forEach(f=>{
+    if(f.l<3&&frameCount%20<10)return;
+    push();translate(f.x,f.y);
+    if(f.k==='d'){glow(K.a,16);fill(K.a);rectMode(CENTER);rotate(QUARTER_PI);rect(0,0,17,17)}  // dulce = rombo ámbar
+    else{glow(K.g,12);fill(K.g);circle(0,0,15)}                                                    // raíz = círculo verde
+    pop();});
+  glow(P.a.col,18);fill(P.a.col);circle(P.x,P.y,22);fill(7,10,8);circle(P.x,P.y,8);glow('#000',0);
+  if(calm){noFill();stroke(K.b);strokeWeight(2);circle(P.x,P.y,40+sin(frameCount*.2)*5);noStroke()}
+  if(crow){fill(20);stroke(K.r);strokeWeight(1);triangle(crow.x-12,crow.y,crow.x+12,crow.y-5,crow.x+4,crow.y+9);noStroke()}
+  rectMode(CORNER);
+}
+
+// HUD RVA: 6 biomarcadores + fructosa + ración
+function hud(){
+  noStroke();fill(7,10,8,235);rect(0,0,800,68);
+  const it=[['O₂',H.O2,0],['CO₂',H.CO2,1],['BIODIV',H.bio,0],['AGUA',H.agua,0],['EGO',H.ego,1],['POBL',H.pob,0],['FRUCT',H.fru,1],['RACIÓN',H.hun,0]];
+  it.forEach((b,i)=>{
+    const x=12+(i%4)*196,y=10+floor(i/4)*29,v=constrain(b[1],0,100),bad=b[2]?v>70:v<35,c=bad?(frameCount%30<15?K.r:K.a):K.g;
+    noStroke();fill(c);textSize(10);textAlign(LEFT);text((bad?'⚠ ':'')+b[0],x,y+9);textAlign(RIGHT);text(round(v),x+180,y+9);
+    stroke(c);strokeWeight(1);noFill();rect(x,y+13,180,7);noStroke();fill(c);rect(x,y+13,180*v/100,7);
+    if(b[2]&&P.a.pre){stroke(K.b);line(x+126,y+11,x+126,y+22)}});
+  noStroke();textAlign(LEFT);fill(K.b);textSize(10);
+  text('T-'+max(0,ceil(180-t))+'s · '+(t<14?'DESPERTAR':t<150?'PRUEBA':'CONVERGENCIA')+' · '+P.a.n+' · HUELLA '+round(H.hu)+' · FILTREZA '+fil,12,84);
+  textAlign(RIGHT);fill(H.alu?K.g:K.a);text('E · ALOPURINOL ×'+H.alu,788,84);
+  if(flashT>0){fill(255,93,93,60*flashT/2.5);rect(0,0,800,500);textAlign(CENTER);textSize(40);fill(K.r);text('FILTREZA '+fil,400,260)}
+}
+function sub(){
+  if(millis()>msgT)return;
+  noStroke();fill(7,10,8,220);rect(40,430,720,56,6);textAlign(LEFT);
+  fill(who==='CHRONOS'?K.b:K.g);textSize(10);text(who+' ›',52,444);fill(235);textSize(12);text(msg,52,452,696,32);
+}
+
+// Pantalla final: lección + estadísticas + CTAs
+function endScr(){
+  fill(7,10,8,240);rect(0,0,800,500);
+  const c=E.win?K.g:E.def?K.a:K.r;
+  textAlign(CENTER);glow(c,16);fill(c);textSize(28);text(E.t,400,70);glow('#000',0);
+  fill(K.b);textSize(13);text(E.l,100,95,600,50);
+  fill(K.g);text(E.q,100,150,600,50);
+  fill(220);textSize(12);
+  text('Frutas dulces: '+N.d+' · Raíces armónicas: '+N.r+' · Ingestas fuera de ventana: '+N.o,100,215,600,20);
+  text('Impacto en la partida: biodiversidad −'+round(100-H.bio)+' % · O₂ '+round(H.O2)+' % · agua dulce '+round(H.agua)+' %',100,240,600,20);
+  text('Mundo 2026 (FAO): ≈ 1/3 del alimento producido se pierde o se desperdicia cada año.',100,265,600,20);
+  fill(K.a);textSize(13);text('La glotonería no es la solución de los problemas personales y se prohibió debido al ecocidio.',100,305,600,40);
+  [['Aprende más · paranoiabook.com',70],['Únete al movimiento biónico · bionics.work',410]].forEach(b=>{
+    stroke(K.a);noFill();rect(b[1],380,320,44,6);noStroke();fill(K.a);textSize(11);text(b[0],b[1],396,320,30)});
+  fill(K.b);textSize(11);text('ENTER · reintentar · C daltonismo · V voz',400,460);
+}
+
+function menu(){
+  textAlign(CENTER);glow(K.g,24);fill(K.g);textSize(38);text('GLUTTINESS HEAD',400,70);glow('#000',0);
+  fill(K.b);textSize(11);text('mini-demo PARANOIA · 180 s · muerte permanente',400,92);
+  fill(220);textSize(12);
+  text('EPIGMENIA: Despiertas en Infra. Tu RVA lee 22 biomarcadores y dicta qué, cuánto y cuándo comer. ChronOS no miente. Elige tu ego.',100,115,600,50);
+  ARQ.forEach((a,i)=>{
+    const x=40+i*185,y=185;
+    stroke(i===sel?a.col:'#333');strokeWeight(i===sel?2:1);fill(i===sel?color(255,255,255,12):color(0,0,0,0));rect(x,y,175,140,8);
+    noStroke();fill(a.col);textSize(16);text((i+1)+' · '+a.n,x+87,y+30);
+    fill(220);textSize(10);text(a.r,x+8,y+50,160,30);fill(K.g);text(a.p,x+8,y+90,160,30)});
+  stroke(K.a);strokeWeight(1);noFill();rect(300,350,200,38,6);noStroke();fill(K.a);textSize(14);text('ENTER · INICIAR',400,374);
+  fill(K.b);textSize(10);text('Flechas/WASD mover · ESPACIO respirar · E alopurinol · C daltonismo · V voz',400,415);
+  fill(150);text('Come fruta dulce = alivio inmediato y precio biológico inmediato.',400,440);
+}
+
+function keyPressed(){
+  if(keyCode===13){if(S!=='play')start()}
+  else if(S==='menu'&&keyCode>=49&&keyCode<=52)sel=keyCode-49;
+  else if(keyCode===67)cb=!cb;
+  else if(keyCode===86){vox=!vox;if(!vox&&window.speechSynthesis)speechSynthesis.cancel()}
+  else if(keyCode===69&&S==='play'&&H.alu>0&&H.fru>40){H.alu--;H.fru-=40;H.ego+=8;say('Allopurinol nanoencapsulado aplicado. La química alivia el hígado, no el hábito.',1)}
+  if([32,37,38,39,40].includes(keyCode))return false;
+}
+function mousePressed(){
+  if(S==='menu'){
+    ARQ.forEach((a,i)=>{const x=40+i*185;if(mouseX>x&&mouseX<x+175&&mouseY>185&&mouseY<325)sel=i});
+    if(mouseX>300&&mouseX<500&&mouseY>350&&mouseY<388)start();
+  }else if(S==='end'&&mouseY>380&&mouseY<424){
+    if(mouseX>70&&mouseX<390)window.open('https://paranoiabook.com','_blank');
+    if(mouseX>410&&mouseX<730)window.open('https://bionics.work','_blank');
+  }
+}
+</script>
+<!--
+README · Gluttiness Head
+- Ejecutar: abrir este archivo en un navegador (o publicarlo tal cual). Sin build ni servidor. Necesita internet para p5.js (cdnjs) y la fuente.
+- Estructura: un solo archivo → gluttiness-head.html
+- Assets: ninguno externo. Visuales con Canvas/p5. Fuente JetBrains Mono (alternativa gratuita: cualquier monospace del sistema, ya es el fallback). Sin audio: la voz de ChronOS usa speechSynthesis del navegador.
+- Accesibilidad: teclado completo, subtítulos siempre visibles, C = paleta apta para daltonismo (las frutas además se distinguen por forma: rombo = dulce, círculo = raíz), V = silenciar voz.
+- Bucle: 1ª partida siempre acaba en muerte (o "muerte diferida" al llegar a 180 s); desde la 2ª es posible ganar.
+-->
+</body>
+</html>
