@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARANOIA · Generador de Prompts · Bionics.Work × ParanoiaBook</title>
+<style>
+  :root{
+    --bg:#070a08;
+    --bg2:#0d1410;
+    --panel:#0f1814;
+    --panel2:#132018;
+    --line:#1f3a2b;
+    --green:#7fff9e;
+    --green-dim:#3ec972;
+    --amber:#ffb347;
+    --red:#ff5d5d;
+    --blue:#5dd3ff;
+    --text:#d8f0e0;
+    --muted:#7b9688;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;line-height:1.5;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(127,255,158,0.08), transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(93,211,255,0.06), transparent 55%),
+      linear-gradient(180deg,#05080a 0%,#070a08 100%);
+    min-height:100vh;
+  }
+  .grid-bg{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(127,255,158,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(127,255,158,0.03) 1px, transparent 1px);
+    background-size:40px 40px;
+    mask-image:radial-gradient(ellipse at center, black 40%, transparent 90%);
+  }
+  header{
+    position:relative;z-index:2;
+    padding:24px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(15,24,20,0.9), rgba(15,24,20,0.5));
+    backdrop-filter:blur(10px);
+  }
+  .logo{display:flex;align-items:center;gap:14px}
+  .logo-mark{
+    width:44px;height:44px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--green), var(--green-dim) 60%, #0a2a17 100%);
+    box-shadow:0 0 24px rgba(127,255,158,0.4), inset 0 0 12px rgba(0,0,0,0.5);
+    position:relative;
+    animation:pulse 3s ease-in-out infinite;
+  }
+  .logo-mark::before,.logo-mark::after{
+    content:'';position:absolute;background:var(--bg);border-radius:2px;
+  }
+  .logo-mark::before{left:50%;top:10%;width:2px;height:80%;transform:translateX(-50%)}
+  .logo-mark::after{top:50%;left:10%;width:80%;height:2px;transform:translateY(-50%)}
+  @keyframes pulse{0%,100%{box-shadow:0 0 24px rgba(127,255,158,0.4), inset 0 0 12px rgba(0,0,0,0.5)}50%{box-shadow:0 0 36px rgba(127,255,158,0.7), inset 0 0 16px rgba(0,0,0,0.6)}}
+  .logo-text h1{font-size:18px;letter-spacing:3px;color:var(--green);font-weight:500}
+  .logo-text p{font-size:10px;letter-spacing:2px;color:var(--muted);margin-top:2px}
+  .header-status{display:flex;gap:20px;align-items:center;font-size:11px;color:var(--muted)}
+  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);margin-right:6px;animation:blink 2s infinite}
+  @keyframes blink{50%{opacity:0.3}}
+
+  main{
+    position:relative;z-index:1;
+    display:grid;
+    grid-template-columns:340px 1fr 420px;
+    gap:20px;
+    padding:24px 32px;
+    max-width:1800px;margin:0 auto;
+  }
+  .panel{
+    background:linear-gradient(180deg, var(--panel), var(--bg2));
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px;
+    position:relative;
+  }
+  .panel::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--green), transparent);
+    opacity:0.6;
+  }
+  .panel h2{
+    font-size:11px;letter-spacing:3px;color:var(--green);font-weight:500;
+    margin-bottom:4px;text-transform:uppercase;
+  }
+  .panel .subtitle{font-size:10px;color:var(--muted);margin-bottom:16px;letter-spacing:1px}
+
+  .section{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed var(--line)}
+  .section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .section-title{
+    font-size:10px;letter-spacing:2px;color:var(--amber);margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;text-transform:uppercase;
+  }
+  .section-title::before{content:'▸';color:var(--green)}
+
+  .concept-grid{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:6px}
+  .concept-grid::-webkit-scrollbar{width:4px}
+  .concept-grid::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:2px}
+  .concept-grid::-webkit-scrollbar-track{background:transparent}
+
+  .concept{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:8px 10px;border-radius:4px;cursor:pointer;
+    border:1px solid transparent;transition:all 0.2s;
+    background:rgba(127,255,158,0.02);
+  }
+  .concept:hover{border-color:var(--line);background:rgba(127,255,158,0.05)}
+  .concept input{accent-color:var(--green);margin-top:2px;flex-shrink:0}
+  .concept-info{flex:1;min-width:0}
+  .concept-name{font-size:12px;color:var(--text);font-weight:500;display:block}
+  .concept-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-top:2px}
+  .concept-tag{
+    display:inline-block;padding:1px 6px;border-radius:2px;
+    background:var(--panel2);border:1px solid var(--line);
+    font-size:9px;color:var(--amber);margin-right:4px;margin-top:4px;
+  }
+
+  label{display:block;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+  input[type="text"], input[type="number"], select, textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);
+    color:var(--text);padding:10px 12px;border-radius:4px;font-family:inherit;
+    font-size:12px;transition:border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus{outline:none;border-color:var(--green)}
+  select{cursor:pointer}
+  textarea{resize:vertical;min-height:60px}
+
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .field{margin-bottom:14px}
+
+  .slider-row{display:flex;align-items:center;gap:12px}
+  input[type="range"]{flex:1;accent-color:var(--green)}
+  .slider-val{
+    min-width:54px;text-align:center;
+    background:var(--bg);border:1px solid var(--line);
+    padding:4px 8px;border-radius:4px;color:var(--green);font-size:11px;
+  }
+
+  .chip-group{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    padding:6px 12px;border:1px solid var(--line);border-radius:20px;
+    font-size:10px;cursor:pointer;transition:all 0.2s;
+    color:var(--muted);background:var(--bg);
+    letter-spacing:1px;
+  }
+  .chip:hover{border-color:var(--green-dim);color:var(--text)}
+  .chip.active{background:var(--green);color:var(--bg);border-color:var(--green);font-weight:600}
+
+  .center-panel{display:flex;flex-direction:column;gap:16px}
+  .preview-card{
+    background:linear-gradient(135deg, var(--panel2), var(--panel));
+    border:1px solid var(--line);border-radius:8px;padding:18px;
+    position:relative;overflow:hidden;
+  }
+  .preview-card::before{
+    content:'';position:absolute;top:-50%;right:-30%;width:300px;height:300px;
+    background:radial-gradient(circle, rgba(127,255,158,0.1), transparent 70%);
+    pointer-events:none;
+  }
+  .preview-title{
+    font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;
+  }
+  .preview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .preview-stat{
+    background:var(--bg);border:1px solid var(--line);padding:10px;border-radius:4px;
+    text-align:center;
+  }
+  .preview-stat .n{font-size:18px;color:var(--green);font-weight:600}
+  .preview-stat .l{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 18px;border-radius:4px;border:1px solid var(--line);
+    background:var(--panel);color:var(--text);cursor:pointer;
+    font-family:inherit;font-size:11px;letter-spacing:2px;
+    transition:all 0.2s;text-transform:uppercase;font-weight:500;
+  }
+  .btn:hover{border-color:var(--green);background:var(--panel2)}
+  .btn.primary{background:var(--green);color:var(--bg);border-color:var(--green);font-weight:600}
+  .btn.primary:hover{background:var(--green-dim);border-color:var(--green-dim);box-shadow:0 0 20px rgba(127,255,158,0.3)}
+  .btn.ghost{background:transparent}
+  .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+
+  .output-wrap{position:relative;display:flex;flex-direction:column;height:100%}
+  .output-header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:12px;
+  }
+  .output-meta{font-size:10px;color:var(--muted);letter-spacing:1px}
+  .output-meta .live{color:var(--green)}
+  .output{
+    flex:1;min-height:400px;
+    background:var(--bg);border:1px solid var(--line);border-radius:4px;
+    padding:14px;overflow-y:auto;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--text);white-space:pre-wrap;word-break:break-word;
+    line-height:1.6;
+  }
+  .output::-webkit-scrollbar{width:6px}
+  .output::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:3px}
+  .output .hl{color:var(--green);font-weight:600}
+  .output .hl2{color:var(--amber)}
+  .output .hl3{color:var(--blue)}
+  .output .hlr{color:var(--red)}
+
+  .copy-toast{
+    position:fixed;top:20px;right:20px;
+    background:var(--green);color:var(--bg);
+    padding:10px 18px;border-radius:4px;font-size:11px;
+    letter-spacing:2px;font-weight:600;
+    opacity:0;transform:translateY(-10px);transition:all 0.3s;
+    z-index:100;pointer-events:none;
+  }
+  .copy-toast.show{opacity:1;transform:translateY(0)}
+
+  footer{
+    padding:20px 32px;border-top:1px solid var(--line);
+    text-align:center;color:var(--muted);font-size:10px;letter-spacing:2px;
+    position:relative;z-index:1;
+  }
+  footer a{color:var(--green);text-decoration:none}
+
+  @media(max-width:1200px){
+    main{grid-template-columns:1fr}
+  }
+
+  .warn-box{
+    background:rgba(255,179,71,0.08);
+    border:1px solid rgba(255,179,71,0.3);
+    border-left:3px solid var(--amber);
+    padding:10px 12px;border-radius:4px;
+    font-size:10px;color:var(--amber);
+    line-height:1.5;letter-spacing:0.5px;
+    margin-bottom:16px;
+  }
+  .warn-box strong{color:#ffc77a}
+
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:12px;
+    font-size:9px;letter-spacing:1px;margin-left:6px;
+    background:rgba(127,255,158,0.1);color:var(--green);
+    border:1px solid rgba(127,255,158,0.3);
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">
+      <h1>PARANOIA · PROMPT FORGE</h1>
+      <p>BIONICS.WORK × PARANOIABOOK.COM · GREENPUNK GAME GEN</p>
+    </div>
+  </div>
+  <div class="header-status">
+    <span><span class="status-dot"></span>CHRONOS ONLINE</span>
+    <span>v2.054</span>
+    <span id="conceptCounter">0 / 14 CONCEPTOS</span>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>Conceptos · Universo Paranoia</h2>
+    <p class="subtitle">Selecciona los conceptos del libro que quieres enseñar</p>
+
+    <div class="section">
+      <div class="section-title">Mecánicas de muerte (consecuencias)</div>
+      <div class="concept-grid" id="conceptsDeath"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sistemas · Tecnología</div>
+      <div class="concept-grid" id="conceptsSystem"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Filosofía · Sociedad</div>
+      <div class="concept-grid" id="conceptsPhil"></div>
+    </div>
+  </div>
+
+  <div class="panel center-panel">
+    <h2>Parámetros del Mini-Demo</h2>
+    <p class="subtitle">Configura la experiencia de juego</p>
+
+    <div class="section">
+      <div class="section-title">Identidad del juego</div>
+      <div class="field">
+        <label>Nombre / Título del mini-demo</label>
+        <input type="text" id="gameName" placeholder="Ej: El Último Biom · La Filtreza Silenciosa">
+      </div>
+      <div class="row">
+        <div>
+          <label>Público objetivo</label>
+          <select id="audience">
+            <option value="jugadores casuales 12+">Jugadores casuales 12+</option>
+            <option value="jugadores hardcore 18+">Jugadores hardcore 18+</option>
+            <option value="educadores y aulas">Educadores / Aulas</option>
+            <option value="activistas climáticos">Activistas climáticos</option>
+            <option value="CEOs y tomadores de decisiones">CEOs / Tomadores de decisiones</option>
+            <option value="lectores de paranoiabook.com">Lectores de paranoiabook.com</option>
+          </select>
+        </div>
+        <div>
+          <label>Plataforma</label>
+          <select id="platform">
+            <option value="web (HTML5/JS, jugable en navegador)">Web (HTML5/JS en navegador)</option>
+            <option value="p5.js interactivo">p5.js interactivo</option>
+            <option value="Three.js 3D">Three.js 3D</option>
+            <option value="text-adventure terminal">Text-adventure (terminal)</option>
+            <option value="mobile-first responsive">Mobile-first responsive</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Mecánica de juego</div>
+      <div class="chip-group" id="mechanicsGroup">
+        <div class="chip active" data-mech="supervivencia">Supervivencia</div>
+        <div class="chip" data-mech="gestión de recursos">Gestión de recursos</div>
+        <div class="chip" data-mech="simulación ecosistémica">Simulación</div>
+        <div class="chip" data-mech="puzzle lógico">Puzzle</div>
+        <div class="chip" data-mech="aventura narrativa">Aventura narrativa</div>
+        <div class="chip" data-mech="idle/clicker">Idle / Clicker</div>
+        <div class="chip" data-mech="roguelike">Roguelike</div>
+        <div class="chip" data-mech="tycoon inverso">Tycoon inverso</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Duración y dificultad</div>
+      <div class="row">
+        <div>
+          <label>Duración de partida (minutos)</label>
+          <div class="slider-row">
+            <input type="range" id="duration" min="3" max="30" value="8">
+            <span class="slider-val" id="durationVal">8 min</span>
+          </div>
+        </div>
+        <div>
+          <label>Nivel de dificultad</label>
+          <select id="difficulty">
+            <option value="accesible (tutorial progresivo)">Accesible · Tutorial progresivo</option>
+            <option value="medio (curva suave)">Medio · Curva suave</option>
+            <option value="desafiante (pocas segundas oportunidades)">Desafiante · Pocas 2das chances</option>
+            <option value="brutal (estilo Paranoia real, muerte permanente)">Brutal · Muerte permanente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Estética visual</div>
+      <div class="chip-group" id="aestheticGroup">
+        <div class="chip active" data-aes="greenpunk bioluminiscente">Greenpunk bioluminiscente</div>
+        <div class="chip" data-aes="terminal hacker verde ámbar">Terminal hacker</div>
+        <div class="chip" data-aes="minimalista orgánico">Minimalista orgánico</div>
+        <div class="chip" data-aes="pixel art retro ecológico">Pixel art eco</div>
+        <div class="chip" data-aes="low-poly 3D">Low-poly 3D</div>
+        <div class="chip" data-aes="ASCII art">ASCII art</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Extras</div>
+      <div class="field">
+        <label>Mensaje final / reflexión educativa (opcional)</label>
+        <textarea id="finalMessage" placeholder="Ej: 'El planeta no te necesita. Tú necesitas al planeta.'"></textarea>
+      </div>
+      <div class="field">
+        <label>Enlaces de conversión (CTAs)</label>
+        <div class="row">
+          <input type="text" id="ctaBionics" value="https://bionics.work" placeholder="bionics.work">
+          <input type="text" id="ctaBook" value="https://paranoiabook.com" placeholder="paranoiabook.com">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="generateBtn">⚡ Generar Prompt</button>
+      <button class="btn ghost" id="resetBtn">↺ Reset</button>
+      <button class="btn ghost" id="randomBtn">🎲 Aleatorio</button>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-title">Resumen del prompt</div>
+      <div class="preview-grid">
+        <div class="preview-stat"><div class="n" id="statConcepts">0</div><div class="l">Conceptos</div></div>
+        <div class="preview-stat"><div class="n" id="statDeaths">0</div><div class="l">Muertes</div></div>
+        <div class="preview-stat"><div class="n" id="statTokens">~0</div><div class="l">Tokens</div></div>
+        <div class="preview-stat"><div class="n" id="statMechs">1</div><div class="l">Mecánicas</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="output-wrap">
+      <h2>Prompt Generado</h2>
+      <p class="subtitle">Listo para Claude · GPT · Gemini · cualquier IA</p>
+
+      <div class="output-header">
+        <div class="output-meta">
+          <span class="live">● LIVE</span> · se actualiza al generar
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="copyBtn">📋 Copiar</button>
+          <button class="btn ghost" id="downloadBtn">⬇ .md</button>
+        </div>
+      </div>
+
+      <div class="output" id="output">// Selecciona conceptos a la izquierda y pulsa "Generar Prompt".
+// El prompt aparecerá aquí listo para copiar.
+//
+// ┌─────────────────────────────────────────────┐
+// │  PARANOIA · PROMPT FORGE                    │
+// │  Convierte los conceptos del libro en       │
+// │  mini-demos jugables con consecuencias.     │
+// └─────────────────────────────────────────────┘
+//
+// Cada concepto tiene una consecuencia letal:
+//   · Eliminar recursos   → muerte por colapso trófico
+//   · Consumir en exceso  → muerte por sobrecarga RVA
+//   · Contaminar          → muerte por bioacumulación
+//   · Desconectar ecosistema → muerte por aislamiento
+//   · Ego descontrolado   → FiltrEgo
+//   · Superpoblación      → Filtreza
+//
+// Conecta: bionics.work ↔ paranoiabook.com</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  PARANOIA © 2026 · Generador educativo · <a href="https://paranoiabook.com" target="_blank">paranoiabook.com</a> · <a href="https://bionics.work" target="_blank">bionics.work</a>
+</footer>
+
+<div class="copy-toast" id="toast">✓ PROMPT COPIADO AL PORTAPAPELES</div>
+
+<script>
+// ============================================================
+// DATOS: CONCEPTOS DEL UNIVERSO PARANOIA
+// ============================================================
+const CONCEPTS = {
+  death: [
+    {id:'d1', name:'Eliminar recursos naturales', desc:'Talar, sobreexplotar, agotar acuíferos → colapso trófico, el jugador muere por inanición sistémica.', tag:'MUERTE'},
+    {id:'d2', name:'Consumir en exceso', desc:'La RVA detecta exceso de fructosa/grasa/CO₂ → allopurinol, fatiga, colapso hepático.', tag:'MUERTE'},
+    {id:'d3', name:'Contaminar el entorno', desc:'Microplásticos, petróleo, metales pesados → bioacumulación, muerte celular progresiva.', tag:'MUERTE'},
+    {id:'d4', name:'Desconectar el ecosistema', desc:'Romper cadenas tróficas (oso-salmón-bosque, serpiente-rodentor) → aislamiento y muerte.', tag:'MUERTE'},
+    {id:'d5', name:'Matar fauna innecesariamente', desc:'Juicio en el Nodo. Cada ser muerto sin función trófica = castigo acumulativo.', tag:'JUICIO'},
+    {id:'d6', name:'Superpoblación local', desc:'Activar Filtreza si densidad supera umbral. 8 billones → 8.000 sobrevivientes.', tag:'FILTREZA'},
+  ],
+  system: [
+    {id:'s1', name:'RVA (Ración Vital Armónica)', desc:'Parches transdérmicos que leen 22 biomarcadores en tiempo real. Dictan qué, cuánto y cuándo comer.', tag:'SISTEMA'},
+    {id:'s2', name:'ChronOS · IA Cuántica', desc:'IA fundacional de Paranoia. No miente. Calcula probabilidades de éxito ecosistémico.', tag:'IA'},
+    {id:'s3', name:'Clones Biónicos', desc:'Trabajadores de biorremediación. Humanos modificados con prótesis para limpiar contaminación histórica.', tag:'BIONICS'},
+    {id:'s4', name:'Ovosíntesis', desc:'Gestación exouterina en matrices de celulosa mineralizada. Solo nacen los necesarios.', tag:'BIO'},
+    {id:'s5', name:'Cúpula de Kola', desc:'Biosfera cerrada a 12.262m de profundidad con energía geotérmica. Refugio final.', tag:'INFRA'},
+    {id:'s6', name:'Máquina del tiempo', desc:'Solo viaja al pasado para recuperar semillas no modificadas. Jamás trae humanos.', tag:'TECH'},
+  ],
+  phil: [
+    {id:'p1', name:'FiltrEgo', desc:'A los 40 años, el ego se filtra voluntariamente. El "yo" se disuelve en el colectivo.', tag:'RITUAL'},
+    {id:'p2', name:'Lenguaje Noético', desc:'Comunicación por imágenes mentales y emociones. Solo Terrasapiens lo dominan.', tag:'LENGUA'},
+    {id:'p3', name:'Terrasapiens vs Homo Sapiens', desc:'Menos del 1% de rasgos agresivos. Sin apego posesivo ni competitividad hormonal.', tag:'ESPECIE'},
+    {id:'p4', name:'Los 4 Vicios Abandonados', desc:'Alcohol, religión, sexo, educación formal. Suprimidos por bien del equilibrio.', tag:'SOCIEDAD'},
+    {id:'p5', name:'Juramento de Paranoia', desc:'"No rescatamos a la humanidad, le damos su lugar." Código ético fundamental.', tag:'CÓDIGO'},
+    {id:'p6', name:'Greenpunk', desc:'Empresa sin ánimo de lucro. Convierte a los ricos en trabajadores biónicos.', tag:'EMPRESA'},
+  ]
+};
+
+const DEATH_MAP = {
+  'd1': 'ELIMINAR RECURSOS → Muerte por colapso trófico en cascada',
+  'd2': 'CONSUMIR EN EXCESO → La RVA sobrecarga el hígado, fatiga 4h, muerte lenta',
+  'd3': 'CONTAMINAR → Bioacumulación de microplásticos, fallo multiorgánico',
+  'd4': 'DESCONECTAR ECOSISTEMA → Aislamiento, el planeta no te reconoce, expulsión',
+  'd5': 'MATAR FAUNA → Juicio en el Nodo, cada vida cobra deuda equivalente',
+  'd6': 'SUPERPOBLACIÓN → Filtreza automática, pulverización cuántica',
+};
+
+// ============================================================
+// RENDER: CONCEPTOS
+// ============================================================
+function renderConcepts(list, containerId){
+  const c = document.getElementById(containerId);
+  list.forEach(item=>{
+    const label = document.createElement('label');
+    label.className = 'concept';
+    label.innerHTML = `
+      <input type="checkbox" value="${item.id}">
+      <div class="concept-info">
+        <span class="concept-name">${item.name}</span>
+        <span class="concept-desc">${item.desc}</span>
+        <span class="concept-tag">${item.tag}</span>
+      </div>`;
+    c.appendChild(label);
+    label.querySelector('input').addEventListener('change', updateStats);
+  });
+}
+renderConcepts(CONCEPTS.death, 'conceptsDeath');
+renderConcepts(CONCEPTS.system, 'conceptsSystem');
+renderConcepts(CONCEPTS.phil, 'conceptsPhil');
+
+// ============================================================
+// CHIPS (mecánicas y estéticas)
+// ============================================================
+document.querySelectorAll('#mechanicsGroup .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    chip.classList.toggle('active');
+    updateStats();
+  });
+});
+document.querySelectorAll('#aestheticGroup .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#aestheticGroup .chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    updateStats();
+  });
+});
+
+// ============================================================
+// SLIDERS Y STATS
+// ============================================================
+const durSlider = document.getElementById('duration');
+const durVal = document.getElementById('durationVal');
+durSlider.addEventListener('input', ()=>{
+  durVal.textContent = durSlider.value + ' min';
+  updateStats();
+});
+
+function getSelectedConcepts(){
+  return [...document.querySelectorAll('.concept input:checked')].map(i=>i.value);
+}
+function getActiveMechanics(){
+  return [...document.querySelectorAll('#mechanicsGroup .chip.active')].map(c=>c.dataset.mech);
+}
+function getActiveAesthetic(){
+  const a = document.querySelector('#aestheticGroup .chip.active');
+  return a ? a.dataset.aes : '';
+}
+
+function updateStats(){
+  const concepts = getSelectedConcepts();
+  const deaths = concepts.filter(c=>c.startsWith('d')).length;
+  const mechs = getActiveMechanics();
+  document.getElementById('statConcepts').textContent = concepts.length;
+  document.getElementById('statDeaths').textContent = deaths;
+  document.getElementById('statMechs').textContent = mechs.length;
+  document.getElementById('conceptCounter').textContent = `${concepts.length} / 18 CONCEPTOS`;
+}
+
+// ============================================================
+// GENERADOR DE PROMPT
+// ============================================================
+function generatePrompt(){
+  const concepts = getSelectedConcepts();
+  if(concepts.length === 0){
+    alert('Selecciona al menos un concepto del universo Paranoia.');
+    return '';
+  }
+
+  const gameName = document.getElementById('gameName').value || 'Mini-Demo Paranoia';
+  const audience = document.getElementById('audience').value;
+  const platform = document.getElementById('platform').value;
+  const mechanics = getActiveMechanics();
+  const aesthetic = getActiveAesthetic();
+  const duration = document.getElementById('duration').value;
+  const difficulty = document.getElementById('difficulty').value;
+  const finalMessage = document.getElementById('finalMessage').value;
+  const ctaBionics = document.getElementById('ctaBionics').value;
+  const ctaBook = document.getElementById('ctaBook').value;
+
+  const selectedDeath = concepts.filter(c=>c.startsWith('d')).map(id=>{
+    const item = CONCEPTS.death.find(x=>x.id===id);
+    return {id, name:item.name, desc:item.desc};
+  });
+  const selectedSystem = concepts.filter(c=>c.startsWith('s')).map(id=>{
+    const item = CONCEPTS.system.find(x=>x.id===id);
+    return {id, name:item.name, desc:item.desc};
+  });
+  const selectedPhil = concepts.filter(c=>c.startsWith('p')).map(id=>{
+    const item = CONCEPTS.phil.find(x=>x.id===id);
+    return {id, name:item.name, desc:item.desc};
+  });
+
+  const prompt = `# 🌿 PROMPT MAESTRO · MINI-DEMO PARANOIA
+## Título: "${gameName}"
+## Generado por PARANOIA PROMPT FORGE · bionics.work × paranoiabook.com
+
+---
+
+## 🎯 ROL DE LA IA
+Actúa como **game designer senior especializado en juegos educativos ecológicos con estética greenpunk**. Vas a crear un **mini-demo jugable** (una sola sesión) basado en el universo narrativo de la saga de ciencia ficción dura *Perdidos en Paranoia* (Jacqueline M.Q. & Ion Iacob). El juego debe **enseñar mediante la consecuencia letal**: el jugador aprende que cada acción antiecológica tiene un precio biológico inmediato.
+
+---
+
+## 📦 ESPECIFICACIONES TÉCNICAS
+- **Plataforma objetivo:** ${platform}
+- **Público:** ${audience}
+- **Duración de partida:** ${duration} minutos (sesión única, rejugable)
+- **Dificultad:** ${difficulty}
+- **Mecánica(s) principal(es):** ${mechanics.join(' + ')}
+- **Estética visual:** ${aesthetic}
+- **Archivo único preferido** (HTML+CSS+JS / .jsx / .py según plataforma)
+
+---
+
+## 🧬 CONCEPTOS NARRATIVOS A IMPLEMENTAR
+
+### ⚰️ MECÁNICAS DE MUERTE (consecuencias letales)
+${selectedDeath.length ? selectedDeath.map(c=>`- **${c.name}** — ${c.desc}`).join('\n') : '- Ninguna seleccionada (añade al menos una)'}
+
+### ⚙️ SISTEMAS · TECNOLOGÍA DEL UNIVERSO
+${selectedSystem.length ? selectedSystem.map(c=>`- **${c.name}** — ${c.desc}`).join('\n') : '- Ninguno seleccionado'}
+
+### 🧠 FILOSOFÍA · SOCIEDAD
+${selectedPhil.length ? selectedPhil.map(c=>`- **${c.name}** — ${c.desc}`).join('\n') : '- Ninguno seleccionado'}
+
+---
+
+## 🎮 REGLAS DE DISEÑO OBLIGATORIAS
+
+1. **Toda acción del jugador debe tener feedback ecológico inmediato.** Si tala un árbol, el contador de O₂ baja. Si come en exceso, la RVA emite alarma. Si mata sin razón, aparece un Cuervo del Nodo.
+2. **Muerte = lección, no castigo arbitrario.** Cada muerte muestra un mensaje breve que cita el libro y enlaza a paranoiabook.com para profundizar.
+3. **HUD inspirado en la RVA (Ración Vital Armónica):**
+   - Biomarcadores visibles: O₂, CO₂, Biodiversidad, Agua dulce, Ego, Población
+   - Alertas con hologramas en verde ámbar (código #7fff9e / #ffb347)
+4. **El jugador encarna a uno de los 4 arquetipos del Triángulo del Ego:**
+   - América (CEO, ego capitalista)
+   - Gaby (hacker, ego intelectual)
+   - Dan (enólogo ruso, ego territorial)
+   - Kalyna (artista ucraniana, ego emocional)
+5. **Sistema de "Huella" acumulativa:** cada decisión suma o resta puntos. Al llegar a umbrales críticos, se activa una **Filtreza** (0, 1, 2 o 3) con cinemática breve.
+6. **ChronOS como narrador:** voz sintética femenina, fría, sin juicios morales. Solo datos.
+7. **Al final de cada partida** (muerte o victoria) mostrar pantalla con:
+   - Estadísticas de impacto real equivalente en el mundo 2026
+   - Dos CTAs obligatorios:
+     * 🌐 **Aprende más:** ${ctaBook}
+     * 🦾 **Únete al movimiento biónico:** ${ctaBionics}
+${finalMessage ? `8. **Mensaje final del jugador:** "${finalMessage}"` : ''}
+
+---
+
+## 🎨 ESTÉTICA VISUAL — GUIA
+${aesthetic === 'greenpunk bioluminiscente' ? `- Paleta: fondo #070a08, acentos #7fff9e (verde bioluminiscente), #ffb347 (ámbar alarma), #5dd3ff (azul ChronOS), #ff5d5d (peligro)
+- Fuentes: JetBrains Mono / Inter para HUD
+- Efectos: glow suave en bordes, grid de fondo sutil, partículas de esporas flotando
+- Inspiración: cuevas de Infra, hongos luminiscentes, cables de oro de ChronOS` :
+aesthetic === 'terminal hacker verde ámbar' ? `- Solo caracteres ASCII y bloques semigráficos
+- Verde fósforo #00ff41 sobre negro absoluto #000
+- Efecto CRT scanlines, typing lento, glitches ocasionales
+- Inspiración: la sala Q-NPU donde Dan encontró ChronOS` :
+`- Aplica la estética elegida: "${aesthetic}" manteniendo coherencia con el universo Paranoia.`}
+
+---
+
+## 📜 ESTRUCTURA NARRATIVA OBLIGATORIA
+
+\`\`\`
+FASE 1 · DESPERTAR (1 min)
+  → Jugador recibe briefing de Epigmenia o Idem
+  → Se le asigna arquetipo y primera misión
+
+FASE 2 · PRUEBA (80% del tiempo)
+  → Bucle de decisiones con consecuencias inmediatas
+  → Al menos 3 muertes posibles según conceptos elegidos
+
+FASE 3 · CONVERGENCIA (1 min)
+  → ChronOS revela el coste total de las decisiones
+  → Filtreza si se supera umbral
+  → Pantalla final con CTAs
+
+FASE 4 · REFLEXIÓN (30 seg)
+  → Cita del libro relacionada con la muerte/victoria
+  → Enlaces a bionics.work y paranoiabook.com
+\`\`\`
+
+---
+
+## 💀 TABLA DE CONSECUENCIAS (implementar según conceptos activos)
+
+| Acción del jugador | Detección | Consecuencia | Concepto Paranoia |
+|---|---|---|---|
+${selectedDeath.map(c=>{
+  const map = {
+    'd1':'Talar bosque / agotar agua | Satélite + RVA | -20% O₂, hambruna en 3 turnos | Colapso trófico',
+    'd2':'Comer fruta sin límite | RVA (fructosa +18%) | Fatiga 4h, fallo hepático | Allopurinol nanoencapsulado',
+    'd3':'Verter petróleo/plástico | Sensores Infra | Bioacumulación, muerte celular | Microplásticos en cadena',
+    'd4':'Ignorar simbiosis | ChronOS | Aislamiento, el suelo te expulsa | Cadena oso-salmón-bosque',
+    'd5':'Matar serpiente/topo | Nodo colectivo | Juicio, deuda trófica | Equivalencia vida = vida',
+    'd6':'Reproducirse sin permiso | Censo Terratek | Filtreza 1 activada | 8bi → 8.000'
+  };
+  return `| ${c.name} | ${map[c.id] || '—'} |`;
+}).join('\n')}
+
+---
+
+## 🔧 ENTREGABLES ESPERADOS DE LA IA
+
+1. **Código completo y jugable** en un solo archivo (${platform})
+2. **Comentarios explicativos** en español dentro del código
+3. **README breve** al final con instrucciones para ejecutar
+4. **Lista de assets necesarios** (si aplica) con alternativa gratuita
+5. **Variante accesible** (modo daltonismo, subtítulos, teclado completo)
+
+---
+
+## 🚫 RESTRICCIONES
+- NO uses librerías externas pesadas (máximo Tailwind CDN, p5.js, o Three.js según plataforma)
+- NO incluyas violencia gráfica gratuita — la muerte es consecuencia, no espectáculo
+- NO simplifiques los conceptos del libro: respeta la nomenclatura (RVA, FiltrEgo, Terrasapiens, ChronOS, Kola, WCS)
+- NO hagas el juego "ganable" sin fricción: el jugador DEBE morir al menos una vez para aprender
+- NO uses imágenes externas: genera todo con CSS/SVG/Canvas/WebGL
+
+---
+
+## ✅ CRITERIOS DE ACEPTACIÓN
+- [ ] Jugable en menos de ${duration} minutos
+- [ ] Al menos ${selectedDeath.length || 1} mecánica(s) de muerte implementada(s) fielmente
+- [ ] HUD RVA visible durante toda la partida
+- [ ] ChronOS habla al menos 3 veces con voz sintética
+- [ ] Pantalla final con ambos CTAs (${ctaBook} y ${ctaBionics})
+- [ ] Responsive o adaptado a la plataforma elegida
+- [ ] El jugador entiende al terminar que **"el planeta no te necesita, tú necesitas al planeta"**
+
+---
+
+**⚡ Genera ahora el mini-demo completo. Empieza por la estructura de archivos/carpetas y luego el código íntegro.**
+`;
+
+  return prompt;
+}
+
+function colorizeOutput(text){
+  return text
+    .replace(/(#{1,3}\s.+)$/gm, '<span class="hl2">$1</span>')
+    .replace(/(\*\*.+?\*\*)/g, '<span class="hl">$1</span>')
+    .replace(/(`{3}[\s\S]*?`{3})/g, '<span class="hl3">$1</span>')
+    .replace(/(⚠️|🚫|💀|⚰️)/g, '<span class="hlr">$1</span>')
+    .replace(/(🌿|🌐|🦾|🧬|🧠|⚙️|🎮|🎨|📜|🔧|✅|📦|🎯)/g, '<span class="hl">$1</span>');
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+document.getElementById('generateBtn').addEventListener('click', ()=>{
+  const prompt = generatePrompt();
+  if(!prompt) return;
+  const out = document.getElementById('output');
+  out.innerHTML = colorizeOutput(prompt);
+  out.dataset.raw = prompt;
+  const tokens = Math.round(prompt.length / 4);
+  document.getElementById('statTokens').textContent = '~'+tokens;
+});
+
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  const out = document.getElementById('output');
+  const text = out.dataset.raw || out.innerText;
+  try{
+    await navigator.clipboard.writeText(text);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1800);
+  }catch(e){
+    alert('No se pudo copiar. Selecciona manualmente.');
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const out = document.getElementById('output');
+  const text = out.dataset.raw || out.innerText;
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `paranoia-prompt-${Date.now()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('.concept input').forEach(i=>i.checked=false);
+  document.querySelectorAll('#mechanicsGroup .chip').forEach((c,i)=>{
+    c.classList.toggle('active', i===0);
+  });
+  document.querySelectorAll('#aestheticGroup .chip').forEach((c,i)=>{
+    c.classList.toggle('active', i===0);
+  });
+  document.getElementById('gameName').value='';
+  document.getElementById('finalMessage').value='';
+  durSlider.value=8; durVal.textContent='8 min';
+  updateStats();
+});
+
+document.getElementById('randomBtn').addEventListener('click', ()=>{
+  const all = [...document.querySelectorAll('.concept input')];
+  all.forEach(i=>i.checked=false);
+  const deaths = all.filter(i=>i.value.startsWith('d'));
+  const sys = all.filter(i=>i.value.startsWith('s'));
+  const phil = all.filter(i=>i.value.startsWith('p'));
+  shuffle(deaths).slice(0, 2+Math.floor(Math.random()*3)).forEach(i=>i.checked=true);
+  shuffle(sys).slice(0, 1+Math.floor(Math.random()*2)).forEach(i=>i.checked=true);
+  shuffle(phil).slice(0, 1+Math.floor(Math.random()*2)).forEach(i=>i.checked=true);
+  const mechs = [...document.querySelectorAll('#mechanicsGroup .chip')];
+  mechs.forEach(c=>c.classList.remove('active'));
+  shuffle(mechs).slice(0, 1+Math.floor(Math.random()*2)).forEach(c=>c.classList.add('active'));
+  updateStats();
+});
+
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+
+updateStats();
+</script>
+</body>
+  </html>
