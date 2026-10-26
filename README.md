@@ -5,6 +5,9 @@ Generador de prompts de mini-demos para el universo de Paranoia, con estética g
 ## Demo
 https://<tu-usuario>.github.io/<nombre-del-repo>/
 
+(https://www.meta.ai/share/c/PWCweyMjuw)[https://www.meta.ai/share/c/PWCweyMjuw]
+
+
 ## ¿Qué hace?
 - Selección de conceptos del universo Paranoia
 - Parámetros de juego: público, plataforma, dificultad, duración
