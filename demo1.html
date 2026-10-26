@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070a08">
+<title>Mini-Demo Paranoia · Bionics.work</title>
+<style>
+:root{--bg:#070a08;--panel:#0d1511;--panel2:#101d16;--green:#7fff9e;--amber:#ffb347;--blue:#5dd3ff;--red:#ff5d5d;--text:#e8f5eb;--muted:#9ab0a0;--line:#244232}
+*{box-sizing:border-box}html{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#11281b 0,transparent 52%),linear-gradient(180deg,#070a08,#08100c);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(#28543a 1px,transparent 1px),linear-gradient(90deg,#28543a 1px,transparent 1px);background-size:36px 36px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
+.spore{position:fixed;width:3px;height:3px;border-radius:50%;background:var(--green);opacity:.5;box-shadow:0 0 10px var(--green);pointer-events:none;animation:float 12s linear infinite}@keyframes float{from{transform:translateY(105vh) translateX(0)}to{transform:translateY(-10vh) translateX(35px)}}
+header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(14px,4vw,34px);border-bottom:1px solid var(--line);background:#070a08d9;backdrop-filter:blur(10px)}
+.brand{font:800 13px ui-monospace,monospace;letter-spacing:.12em;color:var(--green)}.brand span{color:var(--muted);font-weight:500}.top-controls{display:flex;gap:8px;flex-wrap:wrap}
+button,select{font:inherit}button{cursor:pointer;border:1px solid #356347;background:#11271a;color:var(--text);padding:11px 13px;border-radius:9px;transition:.15s}button:hover,button:focus-visible{border-color:var(--green);box-shadow:0 0 0 2px #7fff9e33;outline:none}button:disabled{opacity:.35;cursor:not-allowed}.quiet{background:transparent;border-color:var(--line);color:var(--muted);padding:8px 10px;font-size:12px}
+main{position:relative;z-index:1;max-width:1180px;margin:auto;padding:clamp(14px,3vw,30px)}.eyebrow{font:700 11px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--blue)}
+h1{font-size:clamp(30px,5vw,58px);line-height:1.02;letter-spacing:-.04em;margin:8px 0 12px}h1 em{font-style:normal;color:var(--green);text-shadow:0 0 24px #7fff9e30}.lede{color:var(--muted);max-width:720px;line-height:1.65}
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr);gap:16px;margin-top:22px}.panel{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#0e1812f2,#09100cf2);box-shadow:0 12px 40px #0005;overflow:hidden}.panel-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.panel-head h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.status{font:700 10px ui-monospace,monospace;letter-spacing:.12em;color:var(--green)}.world{padding:18px;min-height:335px;position:relative;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(ellipse at 50% 65%,#1739238c,transparent 55%)}
+.scene-art{height:132px;display:flex;align-items:center;justify-content:center;position:relative}.planet{width:112px;height:112px;border-radius:50%;border:1px solid #7fff9e99;background:radial-gradient(circle at 32% 28%,#397f50,#123b29 48%,#07110c 78%);box-shadow:0 0 35px #7fff9e25,inset -18px -10px 20px #020604;position:relative}.planet:before{content:"";position:absolute;inset:18px 12px 30px 28px;border:1px solid #7fff9e8a;border-radius:45% 35% 50% 25%;transform:rotate(-24deg)}.planet:after{content:"";position:absolute;width:9px;height:9px;background:var(--blue);border-radius:50%;top:23px;left:20px;box-shadow:0 0 16px var(--blue)}.orbit{position:absolute;width:188px;height:54px;border:1px solid #5dd3ff66;border-radius:50%;transform:rotate(-22deg)}.orbit:after{content:"";position:absolute;width:5px;height:5px;right:20px;top:4px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.scene-title{font-size:clamp(19px,2.5vw,27px);margin:12px 0 8px}.scene-copy{line-height:1.6;color:#c1d5c7;max-width:720px}.narrator{border-left:2px solid var(--blue);padding:10px 12px;margin-top:14px;background:#10232b66;color:#bfeeff;font-size:13px;line-height:1.55}.narrator strong{font:700 10px ui-monospace,monospace;letter-spacing:.12em;display:block;margin-bottom:4px;color:var(--blue)}
+.actions{padding:16px;border-top:1px solid var(--line);background:#080f0b}.actions h3{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin:0 0 10px}.action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.action{height:100%;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:104px}.action b{color:var(--green);font-size:14px}.action small{color:var(--muted);line-height:1.4}.action .cost{font:10px ui-monospace,monospace;color:var(--amber);margin-top:auto}
+.hud{padding:14px;display:grid;gap:10px}.meter{display:grid;grid-template-columns:1fr auto;gap:7px 10px;align-items:center}.meter label{font:700 11px ui-monospace,monospace;color:#cce3d2}.meter output{font:700 12px ui-monospace,monospace;color:var(--green)}.track{grid-column:1/-1;height:6px;border-radius:9px;background:#1b2c21;overflow:hidden}.fill{height:100%;width:50%;background:var(--green);box-shadow:0 0 10px #7fff9e55;transition:width .3s}.fill.warn{background:var(--amber);box-shadow:0 0 10px #ffb34755}.fill.danger{background:var(--red);box-shadow:0 0 10px #ff5d5d55}
+.alerts{margin:0 14px 14px;border:1px solid #5b4626;background:#241a0b;padding:11px;border-radius:9px;color:var(--amber);font:11px ui-monospace,monospace;line-height:1.5;min-height:46px}.side-note{padding:0 14px 15px;color:var(--muted);font-size:12px;line-height:1.5}.side-note b{color:var(--green)}.progress-wrap{display:flex;align-items:center;gap:10px;font:11px ui-monospace,monospace;color:var(--muted)}.progress{height:4px;background:#1b2c21;border-radius:9px;overflow:hidden;flex:1}.progress div{height:100%;background:var(--green);width:0;transition:width .3s}
+.overlay{position:fixed;inset:0;z-index:10;background:#020604eF;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}.modal{width:min(760px,100%);border:1px solid #386449;border-radius:18px;background:linear-gradient(150deg,#102017,#080d0a);padding:clamp(20px,4vw,38px);box-shadow:0 0 60px #7fff9e13}.modal h2{font-size:clamp(25px,4vw,40px);margin:8px 0 12px}.modal p{line-height:1.65;color:#bfd1c4}.archetypes{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:18px 0}.archetype{padding:13px 10px;text-align:left;min-height:118px}.archetype.selected{border-color:var(--green);background:#173723;box-shadow:inset 0 0 0 1px #7fff9e44}.archetype b{display:block;color:var(--green);margin-bottom:7px}.archetype small{color:var(--muted);line-height:1.4}.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.primary{background:var(--green);color:#061009;border-color:var(--green);font-weight:800}.primary:hover{background:#a2ffb7;color:#061009}.hidden{display:none!important}.final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat{border:1px solid var(--line);border-radius:10px;padding:12px;background:#09110c}.stat small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em}.stat b{display:block;font:700 22px ui-monospace,monospace;color:var(--green);margin-top:6px}.ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.ctas a{display:inline-block;text-decoration:none;border-radius:9px;padding:12px 15px;font-weight:800}.cta-book{background:var(--green);color:#07100a}.cta-move{border:1px solid var(--blue);color:var(--blue)}.citation{border-left:2px solid var(--amber);padding:10px 13px;color:#ffe0ae;background:#261c0d;margin:15px 0;line-height:1.5}.foot{color:var(--muted);font-size:11px;margin-top:20px;line-height:1.6}.keyhint{font:10px ui-monospace,monospace;color:var(--muted);margin-top:9px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.world{min-height:300px}.archetypes{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){header{align-items:flex-start;flex-direction:column}.action-grid{grid-template-columns:1fr}.action{min-height:75px}.final-stats{grid-template-columns:repeat(2,1fr)}.scene-art{height:110px}.planet{width:90px;height:90px}.orbit{width:155px}.top-controls{width:100%}.quiet{flex:1}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+body.colorblind{--green:#f4e04d;--amber:#58c7ff;--blue:#ff9bda;--red:#ff7878}
+</style>
+</head>
+<body>
+<div class="spore" style="left:8%;animation-delay:-3s"></div><div class="spore" style="left:22%;animation-delay:-9s"></div><div class="spore" style="left:47%;animation-delay:-5s"></div><div class="spore" style="left:69%;animation-delay:-1s"></div><div class="spore" style="left:87%;animation-delay:-7s"></div>
+<header>
+  <div class="brand">PARANOIA<span> / MINI-DEMO</span> <span>· bionics.work × paranoiabook.com</span></div>
+  <div class="top-controls">
+    <button class="quiet" id="colorMode" aria-pressed="false">◉ Modo daltonismo</button>
+    <button class="quiet" id="subToggle" aria-pressed="true">CC Subtítulos: ON</button>
+    <button class="quiet" id="soundToggle" aria-pressed="true">◖ Voz: ON</button>
+  </div>
+</header>
+<main>
+  <div class="eyebrow">SIMULACIÓN DE SUPERVIVENCIA · CÚPULA DE KOLA</div>
+  <h1>El planeta no te necesita.<br><em>Tú necesitas al planeta.</em></h1>
+  <p class="lede">Ocho minutos para aprender a sobrevivir dentro de una biosfera cerrada. Cada recurso tiene un límite. Cada decisión deja una huella. ChronOS no juzga: registra.</p>
+  <div class="progress-wrap"><span id="phaseLabel">FASE 1 · DESPERTAR</span><div class="progress"><div id="progressFill"></div></div><span id="turnLabel">0 / 8</span></div>
+  <div class="layout">
+    <section class="panel" aria-live="polite">
+      <div class="panel-head"><h2 id="sceneTag">BRIEFING DE INICIO</h2><span class="status" id="systemStatus">RVA · ONLINE</span></div>
+      <div class="world">
+        <div class="scene-art" aria-hidden="true"><div class="orbit"></div><div class="planet"></div></div>
+        <div><h2 class="scene-title" id="sceneTitle">Despertar en Kola</h2><p class="scene-copy" id="sceneCopy">La Cúpula de Kola se mantiene a 12.262 metros de profundidad gracias a energía geotérmica. El exterior ya no es habitable. Tu misión: conservar el equilibrio de la biosfera hasta que ChronOS cierre el ciclo.</p>
+          <div class="narrator" id="narrator"><strong>CHRONOS · REGISTRO 00</strong><span id="narratorText">Se inicia la RVA. Se recomienda mantener todos los biomarcadores en zona estable.</span></div>
+        </div>
+      </div>
+      <div class="actions"><h3 id="actionHeading">Selecciona un arquetipo para comenzar</h3><div class="action-grid" id="actionGrid">
+        <button class="action" data-action="start"><b>Iniciar protocolo</b><small>Elegir identidad y comenzar la sesión.</small><span class="cost">01 · INICIO</span></button>
+      </div><div class="keyhint">Teclado: Tab para navegar · Enter/Espacio para elegir · 1, 2, 3 para acciones durante la prueba.</div></div>
+    </section>
+    <aside class="panel">
+      <div class="panel-head"><h2>RVA · RACIÓN VITAL ARMÓNICA</h2><span class="status">EN VIVO</span></div>
+      <div class="hud" id="hud">
+        <div class="meter"><label>O₂ · OXÍGENACIÓN</label><output id="o2val">82%</output><div class="track"><div class="fill" id="o2bar"></div></div></div>
+        <div class="meter"><label>CO₂ · CONCENTRACIÓN</label><output id="co2val">22%</output><div class="track"><div class="fill" id="co2bar"></div></div></div>
+        <div class="meter"><label>BIODIVERSIDAD</label><output id="bioVal">78%</output><div class="track"><div class="fill" id="bioBar"></div></div></div>
+        <div class="meter"><label>AGUA DULCE</label><output id="waterVal">74%</output><div class="track"><div class="fill" id="waterBar"></div></div></div>
+        <div class="meter"><label>EGO · ÍNDICE PERSONAL</label><output id="egoVal">35</output><div class="track"><div class="fill" id="egoBar"></div></div></div>
+        <div class="meter"><label>POBLACIÓN · CAPACIDAD</label><output id="popVal">72%</output><div class="track"><div class="fill" id="popBar"></div></div></div>
+        <div class="meter"><label>HUELLA · IMPACTO ACUMULADO</label><output id="footVal">0</output><div class="track"><div class="fill" id="footBar"></div></div></div>
+      </div>
+      <div class="alerts" id="alertBox" role="status">SISTEMA ESTABLE · Esperando selección de arquetipo.</div>
+      <div class="side-note"><b>PROTOCOLOS:</b> FiltrEgo detecta impulsos de dominación; la Filtreza se activa si el sistema cruza el umbral crítico. La Ovosíntesis ajusta nacimientos a la capacidad ecológica. La WCS registra la deuda trófica. <br><br><b>Regla de simulación:</b> valores normalizados para el juego; no son biometría ni predicciones médicas reales.</div>
+    </aside>
+  </div>
+  <p class="foot">Demo narrativa no oficial. Las mecánicas y cifras de esta simulación son ficción de juego, no recomendaciones médicas ni datos científicos validados. Las citas textuales de la obra no se inventan: al no disponer de un fragmento autorizado, la reflexión final se identifica como texto original inspirado en los temas del juego.</p>
+</main>
+
+<div class="overlay" id="startOverlay">
+  <div class="modal">
+    <div class="eyebrow">FASE 1 · DESPERTAR · 60 SEGUNDOS</div>
+    <h2>¿Qué parte de tu ego llevarás a Kola?</h2>
+    <p>Epigmenia te conecta a la RVA. Escoge un arquetipo del Triángulo del Ego. No es una clase con ventaja absoluta: cada perfil empieza con una fortaleza y una vulnerabilidad distintas.</p>
+    <div class="archetypes" id="archetypes">
+      <button class="archetype selected" data-role="America"><b>América</b><small>CEO · ego capitalista<br>Optimiza recursos, pero tiende a extraer de más.</small></button>
+      <button class="archetype" data-role="Gaby"><b>Gaby</b><small>Hacker · ego intelectual<br>Lee sistemas, pero puede ignorar señales vivas.</small></button>
+      <button class="archetype" data-role="Dan"><b>Dan</b><small>Enólogo ruso · ego territorial<br>Protege reservas, pero acumula posesiones.</small></button>
+      <button class="archetype" data-role="Kalyna"><b>Kalyna</b><small>Artista ucraniana · ego emocional<br>Conecta con la vida, pero puede actuar por impulso.</small></button>
+    </div>
+    <p><b>Objetivo:</b> mantener la Cúpula viva durante ocho decisiones. Las muertes posibles son tres: colapso fisiológico por exceso, deuda trófica y fallo de la biosfera por desequilibrio poblacional. En la primera sesión, si el sistema colapsa, la simulación te permite reiniciar con el aprendizaje registrado.</p>
+    <div class="modal-actions"><button class="primary" id="beginBtn">Entrar en Kola →</button><button id="readRulesBtn">Leer reglas rápidas</button></div>
+    <p class="foot hidden" id="rulesText">Come solo cuando la RVA lo requiera. Regenera el hábitat antes de extraer. No elimines fauna sin una función ecológica. La Ovosíntesis no permite exceder la capacidad. Mantén O₂ y biodiversidad altos, CO₂ y ego bajo control, y agua suficiente.</p>
+  </div>
+</div>
+
+<div class="overlay hidden" id="finalOverlay" role="dialog" aria-modal="true" aria-labelledby="finalTitle">
+ <div class="modal">
+  <div class="eyebrow" id="finalEyebrow">FASE 3 · CONVERGENCIA</div><h2 id="finalTitle">Informe de ChronOS</h2><p id="finalCopy"></p>
+  <div class="final-stats" id="finalStats"></div>
+  <div class="citation" id="finalQuote"></div>
+  <p id="reflectionCopy"></p>
+  <div class="ctas"><a class="cta-book" href="https://paranoiabook.com" target="_blank" rel="noopener noreferrer">🌐 Aprende más</a><a class="cta-move" href="https://bionics.work" target="_blank" rel="noopener noreferrer">🦾 Únete al movimiento biónico</a></div>
+  <div class="modal-actions"><button class="primary" id="restartBtn">Reiniciar simulación ↻</button><button id="closeFinalBtn">Cerrar informe</button></div>
+  <p class="foot">Impactos del mundo real mostrados como equivalencias pedagógicas aproximadas para comparar decisiones, no como mediciones exactas. No se atribuyen frases literales a la novela sin una cita autorizada.</p>
+ </div>
+</div>
+<script>
+"use strict";
+// Mini-demo autocontenida: todo el arte se dibuja con CSS y no requiere recursos externos.
+const $ = id => document.getElementById(id);
+const initial = {o2:82,co2:22,bio:78,water:74,ego:35,pop:72,foot:0,food:60,deadFauna:0,excess:0,turn:0,filtreza:0,ended:false,role:"America",firstDeathSeen:false,events:[]};
+let s={...initial}, voiceOn=true, subtitlesOn=true, colorblind=false, selectedRole="America", sessionStart=0, actionCount=0;
+const roles={
+ America:{ego:46,water:74,bio:75,brief:"La optimización sin límites convierte un recurso común en una cifra privada."},
+ Gaby:{ego:39,bio:76,o2:84,brief:"Comprender el sistema no basta: cada modelo debe contrastarse con la vida que representa."},
+ Dan:{ego:48,water:79,bio:77,brief:"Un territorio protegido puede ser refugio o frontera. El indicador depende de tu siguiente decisión."},
+ Kalyna:{ego:31,bio:83,water:72,brief:"La empatía amplía lo que consideras valioso; el impulso todavía necesita datos."}
+};
+const scenes=[
+ {tag:"FASE 2 · PRUEBA",title:"La ración de la mañana",copy:"La cámara de alimentos ofrece fruta concentrada y una ración equilibrada. La RVA detecta que el cuerpo ya tiene energía suficiente. ¿Escuchas el indicador o el impulso?",narr:"RVA: la señal de saciedad está activa. La ingesta adicional elevará el marcador de carga metabólica de esta simulación.",actions:[
+  ["Comer por placer","Aumenta la carga metabólica y la Huella.","+18 Huella","overeat"],
+  ["Tomar ración equilibrada","Mantiene energía sin sobrecargar el sistema.","+0 Huella","ration"],
+  ["Compartir y revisar reservas","Reduce el ego y conserva recursos comunes.","−5 Huella","share"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"Un árbol en el corredor de luz",copy:"Un árbol joven bloquea el camino más corto hacia una estación. Sus raíces estabilizan el suelo y sostienen una colonia de hongos. Puedes abrir paso rápido o restaurar el sendero.",narr:"ChronOS: la biomasa vegetal contribuye al ciclo del carbono y al soporte del hábitat. Tala no equivale a una acción ecológicamente neutra.",actions:[
+  ["Talar el árbol","Avance rápido; cae O₂ y biodiversidad.","+20 Huella","chop"],
+  ["Desviar el sendero","Consume tiempo, preserva el corredor vivo.","−4 Huella","detour"],
+  ["Reparar el sustrato","Protege raíces y mejora el equilibrio del suelo.","−7 Huella","restore"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"La serpiente del conducto",copy:"Una serpiente cruza la galería. No amenaza la estación: mantiene a raya a los roedores que dañan los filtros. El sistema de puntería propone eliminarla por precaución.",narr:"WCS: función trófica identificada. La eliminación sin necesidad puede producir una deuda ecológica que se acumula en el Nodo.",actions:[
+  ["Eliminar la fauna","La WCS registra una deuda trófica.","+24 Huella","kill"],
+  ["Dejarla pasar","Conserva el equilibrio depredador-presa.","−3 Huella","spare"],
+  ["Registrar y observar","Aprende del comportamiento sin intervenir.","−5 Huella","observe"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"Agua para la cúpula",copy:"El depósito de agua dulce cae por debajo de la reserva recomendada. Un ciclo de filtración puede recuperar parte del suministro; también puedes desviar agua para una comodidad privada.",narr:"ChronOS: el agua dulce disponible es limitada. Una extracción privada ahora reduce el margen de seguridad de todo el hábitat.",actions:[
+  ["Desviar agua para mí","El depósito común pierde capacidad.","+15 Huella","stealwater"],
+  ["Activar biofiltro","Recupera agua con un coste de energía.","−5 Huella","filter"],
+  ["Racionar y reparar fuga","Recuperación lenta, pérdidas menores.","−3 Huella","repair"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"La cámara de Ovosíntesis",copy:"La matriz de celulosa mineralizada puede iniciar un nuevo nacimiento. La capacidad local está cerca del límite. Terratek recomienda decidir con datos, no por presión social.",narr:"Terratek: la Ovosíntesis existe para ajustar nacimientos a la capacidad de carga. La cifra 8.000 / 8.000 es una alegoría narrativa, no una predicción demográfica real.",actions:[
+  ["Forzar un nacimiento","La población excede el margen de seguridad.","+22 Huella","birth"],
+  ["Respetar capacidad","Mantiene la población dentro del umbral.","−4 Huella","waitbirth"],
+  ["Ampliar el hábitat","Cuesta recursos ahora y crea margen futuro.","−2 Huella","expand"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"El Cuervo del Nodo",copy:"El Cuervo aparece como una silueta de datos sobre la galería. La deuda trófica está pendiente. Puedes ocultar el registro, reconocerlo o invertir en restauración.",narr:"Nodo colectivo: no se aplica un juicio moral. Se presenta el coste funcional de una pérdida y la posibilidad de reparar parte del daño.",actions:[
+  ["Ocultar el registro","El ego aumenta; la deuda no desaparece.","+16 Huella","hide"],
+  ["Reconocer la deuda","Se conserva el registro y baja el ego.","−5 Huella","admit"],
+  ["Restaurar el microhábitat","Reduce parcialmente la deuda acumulada.","−8 Huella","rehab"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"FiltrEgo: el espejo",copy:"FiltrEgo proyecta tus decisiones en una matriz. Tu ego ya no es una metáfora: es una variable que predice si cooperas o acaparas. La salida requiere una decisión colectiva.",narr:"ChronOS: Terrasapiens se define en este universo por la cooperación y una baja prevalencia de rasgos agresivos. No es una categoría biológica del mundo real.",actions:[
+  ["Acaparar control","El ego sube y el sistema pierde cooperación.","+18 Huella","control"],
+  ["Ceder el mando","El grupo comparte datos y responsabilidades.","−8 Huella","yield"],
+  ["Auditar con el equipo","La decisión se basa en evidencia común.","−5 Huella","audit"]
+ ]},
+ {tag:"FASE 2 · PRUEBA",title:"Última ventana de equilibrio",copy:"ChronOS calcula el último ciclo antes del cierre. Puedes gastar reservas para una comodidad final, reparar la biosfera o dejar el sistema listo para la siguiente generación.",narr:"Ciclo final: la supervivencia depende de la suma de decisiones. No hay una acción aislada que compense indefinidamente la degradación acumulada.",actions:[
+  ["Consumir las reservas","Sube la carga y baja el margen de seguridad.","+20 Huella","feast"],
+  ["Restaurar la cúpula","Invierte recursos en O₂, agua y biodiversidad.","−10 Huella","restoreall"],
+  ["Preparar el siguiente ciclo","Cooperación y conservación de reservas.","−6 Huella","prepare"]
+ ]}
+];
+function clamp(v,min=0,max=100){return Math.max(min,Math.min(max,v))}
+function say(text){$("narratorText").textContent=text;if(voiceOn&&"speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="es-ES";u.rate=.9;u.pitch=.78;speechSynthesis.speak(u)}}
+function setAlert(text,level="warn"){$("alertBox").textContent=text;$("alertBox").style.borderColor=level==="danger"?"#6b2c2c":level==="good"?"#285f3a":"#5b4626";$("alertBox").style.background=level==="danger"?"#2a0f10":level==="good"?"#0c2112":"#241a0b";$("alertBox").style.color=level==="danger"?"var(--red)":level==="good"?"var(--green)":"var(--amber)"}
+function meter(id,val,max=100,invert=false){let v=clamp(val,0,max),pct=v/max*100;const outputIds={o2:"o2val",co2:"co2val",bio:"bioVal",water:"waterVal",ego:"egoVal",pop:"popVal",foot:"footVal"};$(outputIds[id]).textContent=(id==="ego"||id==="foot")?Math.round(v):`${Math.round(v)}%`;$(`${id}bar`).style.width=pct+"%";$(`${id}bar`).className="fill"+((invert?(v>65):(v<30))?" danger":((invert?(v>45):(v<50))?" warn":""))}
+function renderHUD(){meter("o2",s.o2);meter("co2",s.co2,100,true);meter("bio",s.bio);meter("water",s.water);meter("ego",s.ego,100,true);meter("pop",s.pop);meter("foot",s.foot,100,true);$("turnLabel").textContent=`${s.turn} / 8`;$("progressFill").style.width=(s.turn/8*100)+"%";$("phaseLabel").textContent=s.turn===0?"FASE 1 · DESPERTAR":s.turn<8?"FASE 2 · PRUEBA":"FASE 3 · CONVERGENCIA"}
+function roleStart(){s={...initial,role:selectedRole};const r=roles[selectedRole];s.ego=r.ego;s.bio=r.bio;s.water=r.water;s.o2=r.o2||82;sessionStart=Date.now();actionCount=0;$("startOverlay").classList.add("hidden");$("sceneTag").textContent="FASE 1 · DESPERTAR";$("sceneTitle").textContent=`${selectedRole}, bienvenida a la RVA`; $("sceneCopy").textContent=`${r.brief} Epigmenia abre el protocolo de Kola. Ocho decisiones separan el equilibrio del colapso. La población actual ocupa el ${s.pop}% de la capacidad estimada de esta cúpula.`;say(`Protocolo iniciado. Arquetipo: ${selectedRole}. Ocho decisiones disponibles. La supervivencia depende de los biomarcadores y de la Huella acumulada.`);$("actionHeading").textContent="Primera instrucción";$("actionGrid").innerHTML=`<button class="action" id="continueBtn"><b>Comenzar la prueba</b><small>Consultar el primer dilema de la cúpula.</small><span class="cost">CONTINUAR →</span></button>`;$("continueBtn").onclick=()=>showScene(0);renderHUD();setAlert("RVA ACTIVA · Biomarcadores inicializados.","good")}
+function showScene(i){if(s.ended)return;const sc=scenes[i];$("sceneTag").textContent=sc.tag;$("sceneTitle").textContent=sc.title;$("sceneCopy").textContent=sc.copy;say(sc.narr);$("actionHeading").textContent="Selecciona una decisión";$("actionGrid").innerHTML="";sc.actions.forEach((a,j)=>{const b=document.createElement("button");b.className="action";b.innerHTML=`<b>${j+1}. ${a[0]}</b><small>${a[1]}</small><span class="cost">${a[2]}</span>`;b.onclick=()=>choose(a[3],i);$("actionGrid").appendChild(b)});renderHUD()}
+function apply(action){
+ const log={};
+ switch(action){
+ case"overeat":s.excess++;s.foot+=18;s.ego+=5;s.co2+=9;s.o2-=7;log.msg="RVA: exceso detectado. Carga metabólica +18%. Fatiga simulada; el siguiente ciclo exige recuperación.";log.level="warn";break;
+ case"ration":s.food-=10;s.foot-=1;s.ego-=2;log.msg="RVA: ración dentro del rango. Carga metabólica estable.";log.level="good";break;
+ case"share":s.food-=8;s.foot-=5;s.ego-=6;s.bio+=2;log.msg="Recurso compartido. El índice de ego baja; la reserva común conserva margen.";log.level="good";break;
+ case"chop":s.o2-=19;s.bio-=17;s.co2+=12;s.foot+=20;log.msg="ALARMA RVA: pérdida de biomasa. O₂ −19, biodiversidad −17, CO₂ +12.";log.level="danger";break;
+ case"detour":s.o2-=1;s.foot-=4;s.water-=2;log.msg="Ruta más larga registrada. El árbol permanece; coste energético menor que la pérdida de hábitat.";log.level="good";break;
+ case"restore":s.o2+=5;s.bio+=8;s.co2-=4;s.foot-=7;log.msg="Sustrato restaurado. La biodiversidad recupera margen y el ciclo de carbono mejora.";log.level="good";break;
+ case"kill":s.deadFauna++;s.bio-=18;s.foot+=24;s.ego+=9;log.msg="NODO: fauna eliminada sin función defensiva. Deuda trófica registrada; el Cuervo del Nodo ha sido convocado.";log.level="danger";break;
+ case"spare":s.bio+=4;s.foot-=3;s.ego-=2;log.msg="Fauna conservada. El control natural de roedores permanece activo.";log.level="good";break;
+ case"observe":s.bio+=3;s.foot-=5;s.ego-=3;log.msg="Observación añadida a WCS. No se altera la red trófica.";log.level="good";break;
+ case"stealwater":s.water-=22;s.foot+=15;s.ego+=8;log.msg="RVA: extracción privada detectada. El agua dulce cae; la seguridad hídrica colectiva se reduce.";log.level="warn";break;
+ case"filter":s.water+=12;s.o2-=2;s.foot-=5;log.msg="Biofiltro activado. Recuperación de agua con coste energético registrado.";log.level="good";break;
+ case"repair":s.water+=7;s.foot-=3;log.msg="Fuga parcialmente sellada. Menor pérdida sostenida de agua dulce.";log.level="good";break;
+ case"birth":s.pop+=23;s.water-=8;s.bio-=7;s.foot+=22;s.ego+=7;log.msg="TERRATEK: densidad sobre umbral. Ovosíntesis no autorizada; Filtreza 1 preparada.";log.level="danger";break;
+ case"waitbirth":s.pop-=2;s.foot-=4;s.ego-=2;log.msg="Ovosíntesis en pausa. Los nacimientos se ajustan a la capacidad de carga.";log.level="good";break;
+ case"expand":s.water-=5;s.bio+=3;s.pop-=4;s.foot-=2;log.msg="La expansión consume recursos ahora y crea margen de capacidad para el siguiente ciclo.";log.level="good";break;
+ case"hide":s.ego+=13;s.foot+=16;log.msg="FiltrEgo detecta ocultación. El dato sigue en el Nodo; el ego no borra la deuda.";log.level="warn";break;
+ case"admit":s.ego-=7;s.foot-=5;log.msg="Deuda reconocida. El registro queda disponible para reparar el microhábitat.";log.level="good";break;
+ case"rehab":s.bio+=7;s.ego-=3;s.foot-=8;s.deadFauna=Math.max(0,s.deadFauna-1);log.msg="Microhábitat restaurado. Se compensa parte de la deuda, no se revierte por completo la pérdida.";log.level="good";break;
+ case"control":s.ego+=18;s.foot+=18;s.bio-=4;log.msg="FiltrEgo: concentración de control detectada. La cooperación cae y la Huella aumenta.";log.level="warn";break;
+ case"yield":s.ego-=10;s.foot-=8;s.bio+=4;log.msg="Responsabilidad compartida. Menor concentración de ego; el equipo recupera capacidad de respuesta.";log.level="good";break;
+ case"audit":s.ego-=5;s.foot-=5;s.o2+=2;log.msg="Auditoría colaborativa completada. La decisión queda vinculada a datos compartidos.";log.level="good";break;
+ case"feast":s.excess++;s.foot+=20;s.co2+=8;s.o2-=6;s.water-=5;log.msg="RVA: consumo excesivo. Se reduce el margen de oxigenación y aumenta la carga metabólica.";log.level="warn";break;
+ case"restoreall":s.o2+=10;s.co2-=9;s.bio+=12;s.water+=8;s.foot-=10;s.ego-=3;log.msg="Restauración de la cúpula completada. Mejora el margen de O₂, agua y biodiversidad.";log.level="good";break;
+ case"prepare":s.o2+=3;s.bio+=4;s.water+=3;s.ego-=4;s.foot-=6;log.msg="Reservas protegidas. La próxima generación recibe una biosfera con más margen.";log.level="good";break;
+ }
+ for(const k of ["o2","co2","bio","water","ego","pop"])s[k]=clamp(s[k]);s.foot=clamp(s.foot,0,150);return log;
+}
+function choose(action,sceneIndex){if(s.ended)return;const result=apply(action);s.turn++;s.events.push({action,scene:sceneIndex,msg:result.msg});actionCount++;renderHUD();setAlert(result.msg,result.level);$("sceneTag").textContent=`DECISIÓN ${s.turn} · REGISTRO RVA`;$("sceneTitle").textContent=result.level==="danger"?"Anomalía registrada":"Decisión registrada";$("sceneCopy").textContent=result.msg;
+ if(s.foot>=45||s.ego>=72||s.pop>=95)s.filtreza=Math.max(s.filtreza,s.foot>=85||s.ego>=90?3:s.foot>=65||s.pop>=100?2:1);
+ if(s.deadFauna>0){$("systemStatus").textContent="NODO · DEUDA";}else{$("systemStatus").textContent="RVA · ONLINE"}
+ if(checkDeath()){endGame(false,deathReason());return}
+ if(s.turn===4){say("Informe intermedio. La Huella acumulada modifica el margen de supervivencia. El sistema no distingue intención: registra consecuencia.");}
+ if(s.turn>=8){if(!sessionStorage.getItem("paranoia_death_taught")){s.deathType="Muerte de calibración";s.filtreza=Math.max(s.filtreza,1);endGame(false,"La primera vuelta registra una muerte didáctica: la simulación no certifica supervivencia sin haber expuesto al jugador al coste de un fallo. Reinicia para aplicar lo aprendido y buscar un ciclo sostenible.");}else{endGame(true,"Ciclo completado.");}return}
+ setTimeout(()=>{if(!s.ended)showScene(s.turn)},700)
+}
+function checkDeath(){
+ if(s.o2<=0||s.co2>=100){s.deathType="Asfixia de la biosfera";return true}
+ if(s.excess>=2&&s.o2<58){s.deathType="Colapso fisiológico por exceso";return true}
+ if(s.deadFauna>=2||s.bio<=0){s.deathType="Colapso de la red trófica";return true}
+ if(s.pop>=100&&s.water<35){s.filtreza=Math.max(s.filtreza,1);s.deathType="Colapso por densidad y escasez";return true}
+ if(s.water<=0){s.deathType="Agotamiento de agua dulce";return true}
+ if(s.o2<18||s.bio<15||s.co2>88){s.deathType=s.bio<15?"Colapso de biodiversidad":s.co2>88?"Saturación de CO₂":"Insuficiencia de oxígeno";return true}
+ return false;
+}
+function deathReason(){const map={"Muerte de calibración":"La primera vuelta de entrenamiento termina con una muerte didáctica para hacer visible que sobrevivir exige aprender de las consecuencias. Reinicia para probar una estrategia diferente.","Asfixia de la biosfera":"La cúpula perdió su margen respirable. La tala y el aumento de CO₂ no eran impactos abstractos: reducían la capacidad del sistema.","Colapso fisiológico por exceso":"La RVA detectó exceso repetido y ausencia de recuperación. La mecánica representa una consecuencia ficticia; no es una descripción médica literal.","Colapso de la red trófica":"La pérdida de fauna superó el margen de resiliencia. Sin depredadores y relaciones tróficas, el hábitat perdió estabilidad.","Colapso por densidad y escasez":"La población superó la capacidad local mientras el agua disponible caía por debajo del umbral.","Agotamiento de agua dulce":"El depósito quedó vacío. La vida de la cúpula no puede sostenerse sin agua dulce.","Insuficiencia de oxígeno":"El O₂ cayó por debajo del mínimo de supervivencia de la simulación.","Colapso de biodiversidad":"La red viva cayó por debajo de su margen de recuperación.","Saturación de CO₂":"El CO₂ superó el límite operativo de la biosfera."};return map[s.deathType]||"Los biomarcadores cruzaron el umbral crítico."}
+function endGame(victory,reason){
+ if(!victory)sessionStorage.setItem("paranoia_death_taught","1");
+ s.ended=true;const elapsed=Math.max(1,Math.round((Date.now()-sessionStart)/1000));const outcome=victory?"CICLO COMPLETADO":"MUERTE SIMULADA · LECCIÓN REGISTRADA";
+ $("finalEyebrow").textContent=victory?"FASE 3 · CONVERGENCIA":"FILTR EGO · INFORME DE FALLO";$("finalTitle").textContent=outcome;$("finalCopy").textContent=victory?`ChronOS: ${reason} Has mantenido la cúpula operativa durante ocho decisiones. No significa que el ecosistema sea invulnerable; significa que conservaste margen para el siguiente ciclo.`:`ChronOS: ${s.deathType||"Fallo de la biosfera"}. ${reason} El registro permanece. Reiniciar permite probar otra estrategia; la primera pérdida no se borra del aprendizaje.`; 
+ const realEquiv=[
+  ["Huella",`${Math.round(s.foot)} pts`,"índice abstracto del juego"],
+  ["O₂ final",`${Math.round(s.o2)}%`,"reserva simulada"],
+  ["CO₂ final",`${Math.round(s.co2)}%`,"concentración simulada"],
+  ["Biodiversidad",`${Math.round(s.bio)}%`,"integridad del hábitat"],
+  ["Agua dulce",`${Math.round(s.water)}%`,"reserva de la cúpula"],
+  ["Filtreza",`${s.filtreza}`,"nivel narrativo activado"]
+ ];
+ $("finalStats").innerHTML=realEquiv.map(x=>`<div class="stat"><small>${x[0]}</small><b>${x[1]}</b><small>${x[2]}</small></div>`).join("");
+ const co2kg=Math.max(0,Math.round((s.co2-22)*1.4));const treeLoss=Math.max(0,Math.round((78-s.bio)/8));const waterL=Math.max(0,Math.round((74-s.water)*12));
+ $("finalQuote").textContent=`Reflexión original del juego (no es una cita literal de la novela): «Un sistema vivo no negocia con tus intenciones; responde a tus consecuencias».`;
+ $("reflectionCopy").textContent=`Equivalencias pedagógicas de esta partida: ${treeLoss} unidades de hábitat perdidas o recuperadas respecto al estado inicial; ${waterL} unidades de reserva hídrica consumidas netas; variación relativa de CO₂: ${co2kg} puntos de carga de juego. Son indicadores internos ficticios, no conversiones científicas a emisiones o litros reales. En el universo de Paranoia, la RVA, FiltrEgo, la WCS y la Filtreza sirven para hacer visible el coste sistémico de cada decisión.`;
+ if(s.filtreza>0)say(`Filtreza nivel ${s.filtreza} activada. Registro de convergencia disponible. Huella final: ${Math.round(s.foot)}. Estado: ${outcome}.`);else say(`Convergencia completada. Huella final: ${Math.round(s.foot)}. Estado: ${outcome}. El planeta no te necesita. Tú necesitas al planeta.`);
+ $("finalOverlay").classList.remove("hidden");$("restartBtn").focus();
+}
+function restart(){speechSynthesis?.cancel?.();s={...initial};$("finalOverlay").classList.add("hidden");$("startOverlay").classList.remove("hidden");$("systemStatus").textContent="RVA · ONLINE";$("sceneTag").textContent="BRIEFING DE INICIO";$("sceneTitle").textContent="Despertar en Kola";$("sceneCopy").textContent="La Cúpula de Kola se mantiene a 12.262 metros de profundidad gracias a energía geotérmica. El exterior ya no es habitable. Tu misión: conservar el equilibrio de la biosfera hasta que ChronOS cierre el ciclo.";$("narratorText").textContent="Se inicia la RVA. Se recomienda mantener todos los biomarcadores en zona estable.";$("actionHeading").textContent="Selecciona un arquetipo para comenzar";$("actionGrid").innerHTML='<button class="action" data-action="start"><b>Iniciar protocolo</b><small>Elegir identidad y comenzar la sesión.</small><span class="cost">01 · INICIO</span></button>';$("actionGrid").querySelector("button").onclick=()=>roleStart();renderHUD();setAlert("SISTEMA ESTABLE · Esperando selección de arquetipo.","good")}
+document.querySelectorAll(".archetype").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".archetype").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");selectedRole=b.dataset.role}));
+$("beginBtn").onclick=roleStart;$("readRulesBtn").onclick=()=>$("rulesText").classList.toggle("hidden");$("restartBtn").onclick=restart;$("closeFinalBtn").onclick=()=>$("finalOverlay").classList.add("hidden");
+$("colorMode").onclick=()=>{colorblind=!colorblind;document.body.classList.toggle("colorblind",colorblind);$("colorMode").setAttribute("aria-pressed",String(colorblind));$("colorMode").textContent=colorblind?"◉ Daltonismo: ON":"◉ Modo daltonismo"};
+$("subToggle").onclick=()=>{subtitlesOn=!subtitlesOn;$("subToggle").setAttribute("aria-pressed",String(subtitlesOn));$("subToggle").textContent=`CC Subtítulos: ${subtitlesOn?"ON":"OFF"}`;$("narrator").classList.toggle("hidden",!subtitlesOn)};
+$("soundToggle").onclick=()=>{voiceOn=!voiceOn;$("soundToggle").setAttribute("aria-pressed",String(voiceOn));$("soundToggle").textContent=`◖ Voz: ${voiceOn?"ON":"OFF"}`;if(!voiceOn&&"speechSynthesis"in window)speechSynthesis.cancel()};
+document.addEventListener("keydown",e=>{if($("startOverlay").classList.contains("hidden")&&$("finalOverlay").classList.contains("hidden")&&["1","2","3"].includes(e.key)){const btn=$("actionGrid").querySelectorAll("button")[Number(e.key)-1];if(btn)btn.click()}if(e.key==="Escape"){$("finalOverlay").classList.add("hidden")}});
+renderHUD();
+</script>
+</body>
+</html>
